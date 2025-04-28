@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "bun@1.2.10",
   "scripts": {
-    "build": "bun run generate; next build",
+    "build": "bun run registry; bun run generate; next build",
     "dev": "next dev --turbopack",
     "format": "prettier --write . --list-different --cache",
     "generate": "bun run scripts/generate-docs.ts",
