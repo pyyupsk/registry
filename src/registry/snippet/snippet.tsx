@@ -29,16 +29,16 @@ export const Snippet = memo(({ className, command = DEFAULT_COMMAND }: Props) =>
       className={cn("bg-background relative flex items-center rounded-md border p-2", className)}
     >
       <pre className="mr-8 max-w-full overflow-x-auto font-mono text-sm before:content-['$_'] before:select-none">
-        <code>{command}</code>
+        <code className="not-prose">{command}</code>
       </pre>
       <button
         aria-label={copied ? "Copied" : "Copy to clipboard"}
-        className="absolute top-1/2 right-4 flex -translate-y-1/2 items-center justify-center"
+        className="absolute top-1/2 right-4 flex -translate-y-1/2 cursor-pointer items-center justify-center"
         onClick={handleCopy}
       >
         <CheckIcon
           className={cn(
-            "absolute h-4 w-4 transition-all",
+            "absolute h-4 w-4 text-green-500 transition-all",
             copied ? "scale-100 opacity-100" : "scale-0 opacity-0",
           )}
         />
