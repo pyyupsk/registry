@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "pyyupsk",
+  "homepage": "https://fasu.dev",
+  "items": [
+    {
+      "name": "theme-switcher",
+      "title": "Theme Switcher",
+      "description": "A theme switcher component for light, dark, and system modes with Vercel Inc style.",
+      "type": "registry:component",
+      "author": "pyyupsk <contact@fasu.dev>",
+      "dependencies": ["lucide-react", "next-themes"],
+      "registryDependencies": ["skeleton"],
+      "files": [
+        {
+          "path": "registry/new-york/theme-switcher/theme-switcher.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "docs": "Ensure next-themes is configured in your _app.tsx or layout.tsx.",
+      "categories": ["dashboard", "ui"]
+    }
+  ]
+}
