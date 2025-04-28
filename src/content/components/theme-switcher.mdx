@@ -1,3 +1,26 @@
+---
+title: "Theme Switcher"
+description: "A theme switcher component for light, dark, and system modes with Vercel Inc style."
+---
+
+import { Tabs as ShadcnTabs, TabsContent as ShadcnTabsContent, TabsList as ShadcnTabsList, TabsTrigger as ShadcnTabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { ThemeSwitcher } from "@/registry/new-york/theme-switcher/theme-switcher";
+
+<ShadcnTabs defaultValue="preview">
+  <ShadcnTabsList>
+    <ShadcnTabsTrigger value="preview">Preview</ShadcnTabsTrigger>
+    <ShadcnTabsTrigger value="code">Code</ShadcnTabsTrigger>
+  </ShadcnTabsList>
+  <ShadcnTabsContent value="preview">
+    <Card>
+      <CardContent className="grid place-content-center min-h-96">
+        <ThemeSwitcher />
+      </CardContent>
+    </Card>
+  </ShadcnTabsContent>
+  <ShadcnTabsContent value="code">
+```tsx
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,3 +58,25 @@ export function ThemeSwitcher() {
     </div>
   );
 }
+```
+  </ShadcnTabsContent>
+</ShadcnTabs>
+
+## Installation
+
+```package-install
+npx shadcn@latest add https://registry.fasu.dev/r/theme-switcher.json
+```
+
+## Usage
+
+```tsx
+import { ThemeSwitcher } from "@/components/theme-switcher";
+```
+
+```tsx
+<ThemeSwitcher />
+```
+
+Ensure next-themes is configured in your _app.tsx or layout.tsx.
+  

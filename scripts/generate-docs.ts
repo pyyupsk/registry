@@ -16,7 +16,7 @@ type Component = {
   name: string;
   registryDependencies: string[];
   title: string;
-  type: string;
+  type: "registry:component" | "registry:ui";
 };
 
 type ComponentFile = {
@@ -44,14 +44,14 @@ async function generateMarkdownDocs(component: Component): Promise<string> {
     }
   }
 
-  // Format dependencies for display
-  const dependencies = component.dependencies?.length
-    ? `- ${component.dependencies.join("\n- ")}`
-    : "None";
+  const type = component.type;
 
-  const registryDependencies = component.registryDependencies?.length
-    ? `- ${component.registryDependencies.join("\n- ")}`
-    : "None";
+  const doceImport = `import { ${component.title.replace(" ", "")} } from "${component.files
+    .find((c) => c.path.endsWith(`${component.name}.tsx`))
+    ?.path.replace("src/", "@/")
+    .replace(".tsx", "")}";`;
+  const usageImport = `import { ${component.title.replace(" ", "")} } from "@/components/${type === "registry:ui" ? `ui/${component.name}` : component.name}";`;
+  const usage = `<${component.title.replace(" ", "")} />`;
 
   // Generate markdown document
   return `---
@@ -59,29 +59,45 @@ title: "${component.title}"
 description: "${component.description}"
 ---
 
-${component.docs ? `## Usage\n${component.docs}` : ""}
+import { Tabs as ShadcnTabs, TabsContent as ShadcnTabsContent, TabsList as ShadcnTabsList, TabsTrigger as ShadcnTabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+${doceImport}
 
-## Dependencies
+<ShadcnTabs defaultValue="preview">
+  <ShadcnTabsList>
+    <ShadcnTabsTrigger value="preview">Preview</ShadcnTabsTrigger>
+    <ShadcnTabsTrigger value="code">Code</ShadcnTabsTrigger>
+  </ShadcnTabsList>
+  <ShadcnTabsContent value="preview">
+    <Card>
+      <CardContent className="grid place-content-center min-h-96">
+        ${usage}
+      </CardContent>
+    </Card>
+  </ShadcnTabsContent>
+  <ShadcnTabsContent value="code">
+\`\`\`tsx\n${sourceCode}\`\`\`
+  </ShadcnTabsContent>
+</ShadcnTabs>
 
-### npm packages
-${dependencies}
+## Installation
 
-### Registry dependencies
-${registryDependencies}
-
-## Categories
-${component.categories?.map((cat) => `- ${cat}`).join("\n") || "None specified"}
-
-## Source Code
-
-\`\`\`tsx
-${sourceCode}
+\`\`\`package-install
+npx shadcn@latest add https://registry.fasu.dev/r/${component.name}.json
 \`\`\`
 
-## Author
+## Usage
 
-${component.author || "Not specified"}
-`;
+\`\`\`tsx
+${usageImport}
+\`\`\`
+
+\`\`\`tsx
+${usage}
+\`\`\`
+
+${component.docs ? component.docs : ""}
+  `;
 }
 
 async function main() {
@@ -91,8 +107,10 @@ async function main() {
     const registryContent = await readFile(registryPath, "utf8");
     const registry: Registry = JSON.parse(registryContent);
 
-    // Filter for components (type = "registry:component")
-    const components = registry.items.filter((item) => item.type === "registry:component");
+    // Filter for components (type = "registry:component", "registry:ui")
+    const components = registry.items.filter(
+      (item) => item.type === "registry:component" || item.type === "registry:ui",
+    );
 
     if (components.length === 0) {
       console.log("No components found in registry.json");
@@ -124,7 +142,7 @@ async function main() {
     // Generate and write markdown docs for each component
     for (const component of components) {
       const markdown = await generateMarkdownDocs(component);
-      const docPath = path.resolve(docsDir, `${component.name}.md`);
+      const docPath = path.resolve(docsDir, `${component.name}.mdx`);
       await writeFile(docPath, markdown, "utf8");
       console.log(`Generated docs for ${component.name} at ${docPath}`);
     }

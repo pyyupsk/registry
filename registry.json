@@ -13,7 +13,7 @@
       "registryDependencies": ["skeleton"],
       "files": [
         {
-          "path": "registry/new-york/theme-switcher/theme-switcher.tsx",
+          "path": "src/registry/new-york/theme-switcher/theme-switcher.tsx",
           "type": "registry:component"
         }
       ],
