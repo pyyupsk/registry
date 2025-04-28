@@ -8,7 +8,7 @@ export default function LandingPage() {
     <section className="container flex h-[calc(100vh-4rem)] flex-col-reverse items-center justify-center gap-8 sm:flex-row sm:justify-between">
       <div className="sm:w-1/2">
         <h1 className="mb-6 text-center text-5xl font-bold tracking-tight sm:text-left">
-          fasu<span className="text-muted-foreground">.dev</span> shadcn/ui components collections
+          fasu<span className="text-muted-foreground">.dev</span> shadcn/ui components collections.
         </h1>
         <p className="text-muted-foreground mb-8 text-center text-lg sm:text-left">
           A growing collection of beautifully designed, ready-to-use components for your next
