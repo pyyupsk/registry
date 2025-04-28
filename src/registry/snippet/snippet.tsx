@@ -4,7 +4,14 @@ import { cn } from "@/lib/utils";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { memo, useCallback, useState } from "react";
 
-export const Snippet = memo(({ className, command }: { className?: string; command: string }) => {
+type Props = {
+  className?: string;
+  command: string;
+};
+
+const DEFAULT_COMMAND = "bunx --bun shadcn@latest add https://registry.fasu.dev/r/snippet.json";
+
+export const Snippet = memo(({ className, command = DEFAULT_COMMAND }: Props) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
