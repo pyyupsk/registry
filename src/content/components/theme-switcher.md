@@ -3,6 +3,10 @@ title: "Theme Switcher"
 description: "A theme switcher component for light, dark, and system modes with Vercel Inc style."
 ---
 
+## Usage
+
+Ensure next-themes is configured in your \_app.tsx or layout.tsx.
+
 ## Dependencies
 
 ### npm packages
