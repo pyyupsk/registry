@@ -126,28 +126,28 @@ title: "${component.title}"
 description: "${component.description}"
 ---
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs as STabs, TabsContent as STabsContent, TabsList as STabsList, TabsTrigger as STabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 ${docsImport}
 
-<Tabs defaultValue="preview">
-  <TabsList>
-    <TabsTrigger value="preview">Preview</TabsTrigger>
-    <TabsTrigger value="code">Code</TabsTrigger>
-  </TabsList>
-  <TabsContent value="preview">
+<STabs defaultValue="preview">
+  <STabsList>
+    <STabsTrigger value="preview">Preview</STabsTrigger>
+    <STabsTrigger value="code">Code</STabsTrigger>
+  </STabsList>
+  <STabsContent value="preview">
     <Card>
       <CardContent className="grid place-content-center min-h-96">
         ${usage}
       </CardContent>
     </Card>
-  </TabsContent>
-  <TabsContent value="code">
+  </STabsContent>
+  <STabsContent value="code">
 \`\`\`tsx
 ${sourceCode.trim()}
 \`\`\`
-  </TabsContent>
-</Tabs>
+  </STabsContent>
+</STabs>
 
 ## Installation
 
