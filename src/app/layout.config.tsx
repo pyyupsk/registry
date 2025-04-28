@@ -16,7 +16,7 @@ export const baseOptions: BaseLayoutProps = {
     {
       active: "nested-url",
       text: "Components",
-      url: "/components", // auto generate by scripts/generate-docs.ts
+      url: "/components",
     },
   ],
   nav: {
