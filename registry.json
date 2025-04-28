@@ -24,14 +24,14 @@
       "name": "snippet",
       "title": "Snippet",
       "description": "A code snippet component for displaying and copying code blocks.",
-      "type": "registry:component",
+      "type": "registry:ui",
       "author": "pyyupsk <contact@fasu.dev>",
       "dependencies": [],
       "registryDependencies": [],
       "files": [
         {
           "path": "src/registry/snippet/snippet.tsx",
-          "type": "registry:component"
+          "type": "registry:ui"
         }
       ],
       "categories": ["code", "ui"]
