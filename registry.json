@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "pyyupsk",
-  "homepage": "https://fasu.dev",
+  "homepage": "https://registry.fasu.dev",
   "items": [
     {
       "name": "theme-switcher",
@@ -19,6 +19,22 @@
       ],
       "docs": "Ensure next-themes is configured in your _app.tsx or layout.tsx.",
       "categories": ["dashboard", "ui"]
+    },
+    {
+      "name": "snippet",
+      "title": "Snippet",
+      "description": "A code snippet component for displaying and copying code blocks.",
+      "type": "registry:component",
+      "author": "pyyupsk <contact@fasu.dev>",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/new-york/snippet/snippet.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["code", "ui"]
     }
   ]
 }
