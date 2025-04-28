@@ -1,5 +1,8 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import Image from "next/image";
+
 /**
  * Shared layout configurations
  *
@@ -11,17 +14,30 @@ export const baseOptions: BaseLayoutProps = {
   links: [
     {
       active: "nested-url",
-      text: "Documentation",
+      text: "Components",
       url: "/docs",
     },
   ],
   nav: {
     title: (
       <>
-        <svg aria-label="Logo" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-          <circle cx={12} cy={12} fill="currentColor" r={12} />
-        </svg>
-        My App
+        <Image
+          alt="GitHub's profile image"
+          className="rounded-full"
+          height="24"
+          src="https://github.com/pyyupsk.png"
+          width="24"
+        />
+        <span>
+          fasu<span className="text-muted-foreground">.dev</span>
+        </span>
+      </>
+    ),
+  },
+  themeSwitch: {
+    component: (
+      <>
+        <ThemeSwitcher />
       </>
     ),
   },
