@@ -15,7 +15,7 @@ export const baseOptions: BaseLayoutProps = {
     {
       active: "nested-url",
       text: "Components",
-      url: "/docs",
+      url: "/components/theme-switcher", // auto generate by scripts/generate-docs.ts
     },
   ],
   nav: {
