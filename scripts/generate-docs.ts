@@ -132,6 +132,11 @@ async function main() {
     // Update layout config
     await updateLayoutConfig(components);
 
+    // Create a meta.json
+    const metaPath = path.resolve(process.cwd(), "scripts", "meta.json");
+    const metaContent = await readFile(metaPath, "utf-8");
+    await writeFile(path.resolve(docsDir, "meta.json"), metaContent);
+
     console.log("Documentation generation completed successfully!");
   } catch (error) {
     console.error("Error generating documentation:", error);
