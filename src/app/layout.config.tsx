@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
-import { ThemeSwitcher } from "@/registry/new-york/theme-switcher/theme-switcher";
+import { ThemeSwitcher } from "@/registry/theme-switcher/theme-switcher";
 import Image from "next/image";
 
 /**
