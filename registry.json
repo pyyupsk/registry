@@ -42,7 +42,7 @@
       "description": "A simulated terminal component with animated command typing and output.",
       "type": "registry:component",
       "author": "pyyupsk <contact@fasu.dev>",
-      "dependencies": ["motion/react"],
+      "dependencies": ["motion"],
       "registryDependencies": [],
       "files": [
         {
