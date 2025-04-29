@@ -12,6 +12,10 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 
 const DEFAULT_COMMAND = "bunx --bun shadcn@latest add https://registry.fasu.dev/r/snippet.json";
 
+/*
+Usage:
+<Snippet command="bunx --bun shadcn@latest add https://registry.fasu.dev/r/snippet.json" />
+*/
 export const Snippet = memo(({ command = DEFAULT_COMMAND, ...props }: Props) => {
   const [copied, setCopied] = useState(false);
 

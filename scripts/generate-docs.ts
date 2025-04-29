@@ -32,6 +32,169 @@ type Registry = {
 };
 
 /**
+ * Creates an example usage based on props detected
+ */
+function createExampleUsage(
+  componentName: string,
+  propsInterface: null | string,
+  sourceCode: string,
+): string {
+  // Check if we have usage examples in comments first
+  const usageExample = extractUsageExample(sourceCode);
+  if (usageExample) {
+    // Extract just the TSX portion if it's in a full component
+    const jsxMatch = usageExample.match(/<([^>]*|[^<]*<[^>]*>[^<]*)>/s);
+    if (jsxMatch) {
+      return jsxMatch[0];
+    }
+    return usageExample;
+  }
+
+  // If no usage example, generate one based on props
+  if (!propsInterface) {
+    return `<${componentName} />`;
+  }
+
+  const defaultProps = extractDefaultProps(sourceCode);
+  const propDetails = extractPropDetails(propsInterface);
+
+  if (propDetails.length === 0) {
+    return `<${componentName} />`;
+  }
+
+  // Generate example with props
+  return `<${componentName}
+  ${propDetails
+    .map((prop) => {
+      const propName = prop.name;
+
+      // Use default values if available
+      if (defaultProps[propName]) {
+        return `${propName}=${defaultProps[propName]}`;
+      }
+
+      // Otherwise generate a sensible value based on prop name and type
+      if (prop.type.includes("boolean")) {
+        if (
+          propName.startsWith("is") ||
+          propName.includes("enabled") ||
+          propName.includes("active") ||
+          propName.includes("visible")
+        ) {
+          return `${propName}={true}`;
+        }
+        if (propName.includes("disabled")) {
+          return `${propName}={false}`;
+        }
+        return `${propName}={false}`;
+      }
+
+      if (prop.type.includes("string")) {
+        if (propName.includes("class") || propName === "className") {
+          return `${propName}="p-4 border rounded"`;
+        }
+        if (propName.includes("children")) {
+          return `${propName}="Content goes here"`;
+        }
+        if (propName.includes("id")) {
+          return `${propName}="example-id"`;
+        }
+        return `${propName}="example"`;
+      }
+
+      if (prop.type.includes("number")) {
+        return `${propName}={10}`;
+      }
+
+      if (prop.type.includes("array") || prop.type.includes("[]")) {
+        return `${propName}={[]}`;
+      }
+
+      if (prop.type.includes("object") || prop.type.includes("{}")) {
+        return `${propName}={{}}`;
+      }
+
+      // For function props
+      if (prop.type.includes("function") || prop.type.includes("=>")) {
+        return `${propName}={() => {}}`;
+      }
+
+      return `${propName}={/* Add your ${propName} */}`;
+    })
+    .join("\n  ")}
+/>`;
+}
+
+/**
+ * Extract default props from source code
+ */
+function extractDefaultProps(sourceCode: string): Record<string, string> {
+  const defaultProps: Record<string, string> = {};
+
+  // Look for default props in parameters
+  const defaultPropsRegex = /(\w+)\s*=\s*([^,)]+)/g;
+  const functionParamsRegex = /function\s+\w+\(\s*{\s*([^}]*)\s*}/;
+  const paramsMatch = sourceCode.match(functionParamsRegex);
+
+  if (paramsMatch && paramsMatch[1]) {
+    const params = paramsMatch[1];
+    let match;
+
+    while ((match = defaultPropsRegex.exec(params)) !== null) {
+      defaultProps[match[1]] = match[2].trim();
+    }
+  }
+
+  // Look for constants that might be default values
+  const defaultConstRegex = /const\s+DEFAULT_(\w+)\s*=\s*([^;]+)/g;
+  let constMatch;
+
+  while ((constMatch = defaultConstRegex.exec(sourceCode)) !== null) {
+    const propName = constMatch[1].toLowerCase();
+    defaultProps[propName] = constMatch[2].trim();
+  }
+
+  return defaultProps;
+}
+
+/**
+ * Extracts prop names and types from a props interface
+ */
+function extractPropDetails(
+  propsInterface: string,
+): Array<{ name: string; required: boolean; type: string }> {
+  if (!propsInterface) return [];
+
+  const props: Array<{ name: string; required: boolean; type: string }> = [];
+
+  // Extract everything between curly braces
+  const propsBodyMatch = propsInterface.match(/{([^}]*)}/s);
+  if (!propsBodyMatch) return props;
+
+  const propsBody = propsBodyMatch[1];
+
+  // Split by line and process each property
+  const propLines = propsBody
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("//"));
+
+  for (const line of propLines) {
+    // Match property name, optional marker, and type
+    const propMatch = line.match(/(\w+)(\?)?:\s*([^;]+)/);
+    if (propMatch) {
+      props.push({
+        name: propMatch[1],
+        required: !propMatch[2], // If there's no question mark, it's required
+        type: propMatch[3].trim(),
+      });
+    }
+  }
+
+  return props;
+}
+
+/**
  * Extracts component props interface from source code
  */
 function extractPropsInterface(sourceCode: string): null | string {
@@ -77,6 +240,56 @@ function extractPropsInterface(sourceCode: string): null | string {
   );
   if (componentPropsMatches && componentPropsMatches.length > 0) {
     return componentPropsMatches[0];
+  }
+
+  // Check for inline types in function parameters
+  const inlinePropsMatch = sourceCode.match(
+    /function\s+\w+\(\s*{\s*([^}]*)\s*}(\s*:\s*\w+)?\s*\)/s,
+  );
+
+  if (inlinePropsMatch) {
+    return `type Props = {\n  ${inlinePropsMatch[1].trim()}\n}`;
+  }
+
+  return null;
+}
+
+/**
+ * Extract standalone type definitions that might be related to props
+ */
+function extractTypeDefinitions(sourceCode: string): string[] {
+  const typeDefinitions: string[] = [];
+  const typeRegex = /(type|interface)\s+\w+\s*=?\s*([^;]*?{[^{}]*})/gs;
+
+  let match;
+  while ((match = typeRegex.exec(sourceCode)) !== null) {
+    // Only push if it looks like a type definition
+    if (match[0].includes("{") && match[0].includes("}")) {
+      typeDefinitions.push(match[0]);
+    }
+  }
+
+  return typeDefinitions;
+}
+
+/**
+ * Extracts component usage examples from comments in source code
+ */
+function extractUsageExample(sourceCode: string): null | string {
+  // Look for usage examples in comments
+  const usageCommentRegex = /\/\*\s*Usage:([\s\S]*?)\*\//;
+  const usageComment = sourceCode.match(usageCommentRegex);
+
+  if (usageComment && usageComment[1]) {
+    return usageComment[1].trim();
+  }
+
+  // Try to find example code snippets
+  const exampleRegex = /\/\*\s*Example:([\s\S]*?)\*\//;
+  const example = sourceCode.match(exampleRegex);
+
+  if (example && example[1]) {
+    return example[1].trim();
   }
 
   return null;
@@ -135,68 +348,21 @@ async function generateMarkdownDocs(component: Component): Promise<string> {
 
   const componentName = formatComponentName(component.title);
   const importPath = getComponentImportPath(component);
+
+  // Extract props interface more intelligently
   const propsInterface = extractPropsInterface(sourceCode);
+
+  // Check for additional type definitions that might be useful
+  const typeDefinitions = extractTypeDefinitions(sourceCode);
 
   const docsImport = `import { ${componentName} } from "${importPath}";`;
   const usageImport = `import { ${componentName} } from "@/components/${component.type === "registry:ui" ? `ui/${component.name}` : component.name}";`;
 
   // Generate example usage based on props
-  const basicUsage = `<${componentName} />`;
+  const exampleUsage = createExampleUsage(componentName, propsInterface, sourceCode);
 
-  // Generate a better example if we can detect props
-  let exampleUsage = basicUsage;
-
-  if (propsInterface) {
-    // Extract custom props from the interface
-    const customPropsMatch = propsInterface.match(/{([^}]*)}/);
-    if (customPropsMatch) {
-      const customProps = customPropsMatch[1].trim();
-      // If there are custom props, create a more detailed example
-      if (customProps) {
-        // Extract prop names
-        const propNames = customProps
-          .split("\n")
-          .map((line) => {
-            const propName =
-              line.match(/^\s*(\w+)[\\?:]/) || line.match(/^\s*readonly\s+(\w+)[\\?:]/);
-            return propName ? propName[1] : null;
-          })
-          .filter(Boolean);
-
-        // Create example with extracted props
-        if (propNames.length > 0) {
-          exampleUsage = `<${componentName}\n ${propNames
-            .map((prop) => {
-              if (prop != null) {
-                // Add appropriate example values based on prop names
-                if (prop.toLowerCase().includes("className"))
-                  return `  ${prop}="p-4 border rounded"`;
-                if (prop.toLowerCase().includes("children")) return `  ${prop}="Content goes here"`;
-                if (
-                  prop.toLowerCase().includes("enabled") ||
-                  prop.toLowerCase().includes("active") ||
-                  prop.toLowerCase().includes("visible")
-                )
-                  return `  ${prop}={true}`;
-                if (prop.toLowerCase().includes("disabled")) return `  ${prop}={false}`;
-                if (prop.toLowerCase().includes("id")) return `  ${prop}="example-id"`;
-
-                // Find default value in `sourceCode`
-                const defaultValue = sourceCode.match(
-                  new RegExp(`const DEFAULT_${prop.toUpperCase()} = "(.*)";`),
-                );
-                if (defaultValue) return `  ${prop}="${defaultValue[1]}"`;
-
-                return `  ${prop}="example"`;
-              }
-            })
-            .join("\n ")}\n  />`;
-        }
-      }
-    }
-  }
-
-  const usage = basicUsage;
+  // For the preview, use a simpler version
+  const previewUsage = exampleUsage.includes("\n") ? `<${componentName} />` : exampleUsage;
 
   // Generate markdown document
   return `---
@@ -216,7 +382,7 @@ ${docsImport}
   <STabsContent value="preview">
     <Card>
       <CardContent className="grid place-content-center min-h-96">
-        ${usage}
+        ${previewUsage}
       </CardContent>
     </Card>
   </STabsContent>
@@ -244,6 +410,11 @@ export default function Example() {
 \`\`\`
 
 ${propsInterface ? `## Props\n\n\`\`\`tsx\n${propsInterface}\n\`\`\`\n\n` : ""}
+${
+  typeDefinitions.length > 0 && !propsInterface
+    ? `## Types\n\n\`\`\`tsx\n${typeDefinitions.join("\n\n")}\n\`\`\`\n\n`
+    : ""
+}
 ${component.docs ? component.docs : ""}
 
 ${

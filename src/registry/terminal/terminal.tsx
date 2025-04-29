@@ -21,6 +21,19 @@ const DEFAULT_COMMANDS = [
   },
 ];
 
+/*
+Usage:
+<Terminal commands={[
+    {
+      input: "npm i motion",
+      output: "Installed motion",
+    },
+    {
+      input: "npx shadcn@latest add https://registry.fasu.dev/r/terminal.json",
+      output: "Installed terminal",
+    }
+  ]} />
+*/
 export function Terminal({ commands = DEFAULT_COMMANDS }: Props) {
   const [currentCommandIndex, setCurrentCommandIndex] = useState<number>(0);
   const [displayedInput, setDisplayedInput] = useState<string>("");
