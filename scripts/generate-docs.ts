@@ -68,8 +68,8 @@ async function generateIndexPage(components: Component[], docsDir: string): Prom
   const categorized = groupComponentsByCategory(components);
 
   let content = `---
-title: "Components"
-description: "Browse all available components in the library"
+title: "All Components"
+description: "Browse all available components in the collection"
 ---
 
 `;
@@ -116,8 +116,8 @@ async function generateMarkdownDocs(component: Component): Promise<string> {
   // Generate a better example if we can detect props
   const exampleUsage = propsInterface
     ? `<${componentName} 
-  // Add your props here
-/>`
+    // Add your props here
+  />`
     : usage;
 
   // Generate markdown document
