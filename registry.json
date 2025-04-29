@@ -35,6 +35,22 @@
         }
       ],
       "categories": ["code", "ui"]
+    },
+    {
+      "name": "terminal",
+      "title": "Terminal",
+      "description": "A simulated terminal component with animated command typing and output.",
+      "type": "registry:component",
+      "author": "pyyupsk <contact@fasu.dev>",
+      "dependencies": ["motion/react"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/terminal/terminal.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["code", "animation", "ui"]
     }
   ]
 }
