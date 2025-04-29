@@ -37,18 +37,46 @@ type Registry = {
 function extractPropsInterface(sourceCode: string): null | string {
   // Common patterns for props interface/type definitions
   const patterns = [
+    // Original patterns
     /interface\s+(\w+Props)\s*{([^}]*)}/gs,
     /type\s+(\w+Props)\s*=\s*{([^}]*)}/gs,
     /interface\s+Props\s*{([^}]*)}/gs,
     /type\s+Props\s*=\s*{([^}]*)}/gs,
+
+    // Add support for ComponentProps pattern
+    /type\s+(\w+Props)\s*=\s*ComponentProps<[^>]*>\s*&\s*{([^}]*)}/gs,
+    /type\s+Props\s*=\s*ComponentProps<[^>]*>\s*&\s*{([^}]*)}/gs,
+    /interface\s+(\w+Props)\s*extends\s+ComponentProps<[^>]*>\s*{([^}]*)}/gs,
+    /interface\s+Props\s*extends\s+ComponentProps<[^>]*>\s*{([^}]*)}/gs,
+
+    // Support for HTMLAttributes pattern as well
+    /type\s+(\w+Props)\s*=\s*HTMLAttributes<[^>]*>\s*&\s*{([^}]*)}/gs,
+    /type\s+Props\s*=\s*HTMLAttributes<[^>]*>\s*&\s*{([^}]*)}/gs,
+    /interface\s+(\w+Props)\s*extends\s*HTMLAttributes<[^>]*>\s*{([^}]*)}/gs,
+    /interface\s+Props\s*extends\s*HTMLAttributes<[^>]*>\s*{([^}]*)}/gs,
+
+    // Support for React.ComponentProps pattern
+    /type\s+(\w+Props)\s*=\s*React\.ComponentProps<[^>]*>\s*&\s*{([^}]*)}/gs,
+    /type\s+Props\s*=\s*React\.ComponentProps<[^>]*>\s*&\s*{([^}]*)}/gs,
+    /interface\s+(\w+Props)\s*extends\s+React\.ComponentProps<[^>]*>\s*{([^}]*)}/gs,
+    /interface\s+Props\s*extends\s+React\.ComponentProps<[^>]*>\s*{([^}]*)}/gs,
   ];
 
   for (const pattern of patterns) {
     const match = pattern.exec(sourceCode);
     if (match) {
-      // Return either the entire interface definition or just the properties
-      return match[0] || match[1];
+      // Return the entire interface/type definition
+      return match[0];
     }
+  }
+
+  // If we didn't find a match with our specific patterns, try a more general approach
+  // for handling more complex prop definitions
+  const componentPropsMatches = sourceCode.match(
+    /(type|interface)\s+(\w+Props|Props)\s*=?\s*([^;]*?{[^{}]*})/gs,
+  );
+  if (componentPropsMatches && componentPropsMatches.length > 0) {
+    return componentPropsMatches[0];
   }
 
   return null;
@@ -111,14 +139,64 @@ async function generateMarkdownDocs(component: Component): Promise<string> {
 
   const docsImport = `import { ${componentName} } from "${importPath}";`;
   const usageImport = `import { ${componentName} } from "@/components/${component.type === "registry:ui" ? `ui/${component.name}` : component.name}";`;
-  const usage = `<${componentName} />`;
+
+  // Generate example usage based on props
+  const basicUsage = `<${componentName} />`;
 
   // Generate a better example if we can detect props
-  const exampleUsage = propsInterface
-    ? `<${componentName} 
-    // Add your props here
-  />`
-    : usage;
+  let exampleUsage = basicUsage;
+
+  if (propsInterface) {
+    // Extract custom props from the interface
+    const customPropsMatch = propsInterface.match(/{([^}]*)}/);
+    if (customPropsMatch) {
+      const customProps = customPropsMatch[1].trim();
+      // If there are custom props, create a more detailed example
+      if (customProps) {
+        // Extract prop names
+        const propNames = customProps
+          .split("\n")
+          .map((line) => {
+            const propName =
+              line.match(/^\s*(\w+)[\\?:]/) || line.match(/^\s*readonly\s+(\w+)[\\?:]/);
+            return propName ? propName[1] : null;
+          })
+          .filter(Boolean);
+
+        // Create example with extracted props
+        if (propNames.length > 0) {
+          exampleUsage = `<${componentName}\n ${propNames
+            .map((prop) => {
+              if (prop != null) {
+                // Add appropriate example values based on prop names
+                if (prop.toLowerCase().includes("className"))
+                  return `  ${prop}="p-4 border rounded"`;
+                if (prop.toLowerCase().includes("children")) return `  ${prop}="Content goes here"`;
+                if (
+                  prop.toLowerCase().includes("enabled") ||
+                  prop.toLowerCase().includes("active") ||
+                  prop.toLowerCase().includes("visible")
+                )
+                  return `  ${prop}={true}`;
+                if (prop.toLowerCase().includes("disabled")) return `  ${prop}={false}`;
+                if (prop.toLowerCase().includes("id")) return `  ${prop}="example-id"`;
+
+                // Find default value in `sourceCode`
+                const defaultValue = sourceCode.match(
+                  new RegExp(`const DEFAULT_${prop.toUpperCase()} = "(.*)";`),
+                );
+                if (defaultValue) return `  ${prop}="${defaultValue[1]}"`;
+
+                return `  ${prop}="example"`;
+              }
+            })
+            .join("\n ")}\n  />`;
+        }
+      }
+    }
+  }
+
+  const usage = basicUsage;
 
   // Generate markdown document
   return `---
@@ -168,12 +246,10 @@ export default function Example() {
 ${propsInterface ? `## Props\n\n\`\`\`tsx\n${propsInterface}\n\`\`\`\n\n` : ""}
 ${component.docs ? component.docs : ""}
 
-## Dependencies
-
 ${
   component.dependencies.length > 0
-    ? `This component depends on:\n\n${component.dependencies.map((dep) => `- \`${dep}\``).join("\n")}`
-    : "This component has no dependencies."
+    ? `## Dependencies\n\nThis component depends on:\n\n${component.dependencies.map((dep) => `- \`${dep}\``).join("\n")}`
+    : ""
 }
 `;
 }

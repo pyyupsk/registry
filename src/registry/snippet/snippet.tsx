@@ -1,17 +1,18 @@
 "use client";
 
+import type { HTMLAttributes } from "react";
+
 import { cn } from "@/lib/utils";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { memo, useCallback, useState } from "react";
 
-type Props = {
-  className?: string;
+type Props = HTMLAttributes<HTMLDivElement> & {
   command: string;
 };
 
 const DEFAULT_COMMAND = "bunx --bun shadcn@latest add https://registry.fasu.dev/r/snippet.json";
 
-export const Snippet = memo(({ className, command = DEFAULT_COMMAND }: Props) => {
+export const Snippet = memo(({ command = DEFAULT_COMMAND, ...props }: Props) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -26,7 +27,11 @@ export const Snippet = memo(({ className, command = DEFAULT_COMMAND }: Props) =>
 
   return (
     <div
-      className={cn("bg-background relative flex items-center rounded-md border p-2", className)}
+      className={cn(
+        "bg-background relative flex items-center rounded-md border p-2",
+        props.className,
+      )}
+      {...props}
     >
       <pre className="mr-8 max-w-full overflow-x-auto font-mono text-sm before:content-['$_'] before:select-none">
         <code className="not-prose">{command}</code>
