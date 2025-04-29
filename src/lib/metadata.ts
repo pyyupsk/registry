@@ -38,11 +38,24 @@ export function generateMetadata({
     },
     icons: [
       {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        url: "/apple-touch-icon.png",
+      },
+      {
         rel: "icon",
-        type: "image/svg+xml",
-        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='10 0 100 100'><text y='.90em' font-size='90'>👋</text></svg>",
+        sizes: "32x32",
+        type: "image/png",
+        url: "/favicon-32x32.png",
+      },
+      {
+        rel: "icon",
+        sizes: "16x16",
+        type: "image/png",
+        url: "/favicon-16x16.png",
       },
     ],
+    manifest: "/site.webmanifest",
     metadataBase: new URL(BASE_URL),
     openGraph: {
       description,
