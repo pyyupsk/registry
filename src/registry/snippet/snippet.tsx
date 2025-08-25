@@ -2,9 +2,10 @@
 
 import type { HTMLAttributes } from "react";
 
-import { cn } from "@/lib/utils";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { memo, useCallback, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 type Props = HTMLAttributes<HTMLDivElement> & {
   command: string;

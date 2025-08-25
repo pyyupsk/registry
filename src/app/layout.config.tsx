@@ -1,7 +1,8 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
-import { ThemeSwitcher } from "@/registry/theme-switcher/theme-switcher";
 import Image from "next/image";
+
+import { ThemeSwitcher } from "@/registry/theme-switcher/theme-switcher";
 
 /**
  * Shared layout configurations
@@ -36,10 +37,6 @@ export const baseOptions: BaseLayoutProps = {
     ),
   },
   themeSwitch: {
-    component: (
-      <>
-        <ThemeSwitcher />
-      </>
-    ),
+    component: <ThemeSwitcher />,
   },
 };

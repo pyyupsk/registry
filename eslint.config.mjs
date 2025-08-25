@@ -14,10 +14,10 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = tseslint.config(
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals"),
   eslint.configs.recommended,
   perfectionist.configs["recommended-natural"],
-  tseslint.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     rules: {
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],

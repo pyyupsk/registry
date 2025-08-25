@@ -1,7 +1,8 @@
 import "./globals.css";
 
-import { generateMetadata } from "@/lib/metadata";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { generateMetadata } from "@/lib/metadata";
 
 import { Providers } from "./provider";
 

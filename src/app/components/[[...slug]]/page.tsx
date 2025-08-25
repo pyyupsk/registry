@@ -1,8 +1,9 @@
-import { source } from "@/lib/source";
-import { getMDXComponents } from "@/mdx-components";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
+
+import { source } from "@/lib/source";
+import { getMDXComponents } from "@/mdx-components";
 
 export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params;
